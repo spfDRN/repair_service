@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero" style="margin:-32px -24px 32px; padding:48px 24px; border-radius:0 0 12px 12px;">
+  <div class="hero-grid">
+    <div>
+      <h1>Ремонт техники с гарантией и честной сметой</h1>
+      <p class="lead">Принимаем смартфоны, ноутбуки и бытовую технику. Стоимость согласуется с вами до начала ремонта, а статус заявки виден онлайн.</p>
+      <div class="hero-actions">
+        <a class="btn btn-accent" href="{% if user.is_authenticated %}{% url 'cabinet_order_new' %}{% else %}{% url 'register' %}{% endif %}">Оставить заявку</a>
+        <a class="btn btn-outline" href="{% url 'track' %}">Узнать статус заявки</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>Как это работает</h3>
+      <ol style="margin:0; padding-left:18px; color:#546E7A;">
+        <li>Оставляете заявку на сайте</li>
+        <li>Мастер проводит диагностику</li>
+        <li>Вы подтверждаете смету</li>
+        <li>Забираете устройство с гарантией</li>
+      </ol>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="grid grid-3">
+    <div class="card service-card"><h3>Диагностика</h3><p class="muted">Выясняем причину неисправности и называем стоимость.</p><div class="service-note">Бесплатно при ремонте</div></div>
+    <div class="card service-card"><h3>Ремонт</h3><p class="muted">Смартфоны, ноутбуки, планшеты и бытовая техника.</p><div class="service-note">Смета до начала работ</div></div>
+    <div class="card service-card"><h3>Гарантия</h3><p class="muted">Гарантийный талон на выполненные работы и запчасти.</p><div class="service-note">До 12 месяцев</div></div>
+  </div>
+</section>
+{% endblock %}

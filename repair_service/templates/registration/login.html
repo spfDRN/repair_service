@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Вход — РемТех{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <h1>Вход</h1>
+  <form method="post" class="form-card">
+    {% csrf_token %}
+    {% include "_form.html" %}
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Войти</button>
+    <a class="btn btn-outline" href="{% url 'register' %}">Регистрация</a></div>
+  </form>
+</div>
+{% endblock %}

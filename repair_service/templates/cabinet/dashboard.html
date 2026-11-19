@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — РемТех{% endblock %}
+{% block content %}
+<div class="card-head"><h1>Личный кабинет</h1><a class="btn btn-primary" href="{% url 'cabinet_order_new' %}">Новая заявка</a></div>
+<div class="stats section">
+  <div class="stat"><div class="label">Заявок</div><div class="value">{{ orders_count }}</div></div>
+  <div class="stat"><div class="label">Устройств</div><div class="value">{{ devices_count }}</div></div>
+  <div class="stat"><div class="label">Гарантийных талонов</div><div class="value">{{ warranty_count }}</div></div>
+</div>
+<h2>Последние заявки</h2>
+{% include "cabinet/_order_rows.html" with orders=orders %}
+{% endblock %}

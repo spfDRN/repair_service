@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Назначение мастера — РемТех{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'staff_order' request_obj.pk %}">Заявка {{ request_obj.number }}</a> / Назначение мастера</div>
+<h1>Назначение мастера</h1>
+<form method="post" class="form-card">
+  {% csrf_token %}
+  {% include "_form.html" %}
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Назначить</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Заявка {{ request_obj.number }} — РемТех{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'staff_orders' %}">Заявки</a> / {{ request_obj.number }}</div>
+<div class="split">
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2>{{ request_obj.number }} · {{ request_obj.device.brand }} {{ request_obj.device.model }}</h2>
+        <span id="status-badge">{% include "_badge.html" with s=request_obj.status %}</span></div>
+      <dl class="kv">
+        <dt>Клиент</dt><dd>{{ request_obj.device.client.full_name }}, {{ request_obj.device.client.phone }}</dd>
+        <dt>Мастер</dt><dd>{% if request_obj.master %}{{ request_obj.master.user.get_full_name }}{% else %}не назначен{% endif %}
+          {% if is_receptionist %}· <a href="{% url 'staff_assign' request_obj.pk %}">назначить</a>{% endif %}</dd>
+        <dt>Жалоба</dt><dd>{{ request_obj.problem_description }}</dd>
+        <dt>Смета</dt><dd><span id="estimate-total">{{ request_obj.estimate_total|default:"0" }}</span> ₽ ·
+          {% if request_obj.client_confirmed %}подтверждена клиентом{% else %}не подтверждена{% endif %}</dd>
+      </dl>
+    </div>
+
+    {% if not is_receptionist or user.employee_profile.role == 'admin' %}
+    <div class="card">
+      <h3>Диагностика</h3>
+      <form method="post">
+        {% csrf_token %}<input type="hidden" name="action" value="diagnosis">
+        {% include "_form.html" with form=diagnosis_form %}
+        <button class="btn btn-primary" type="submit">Сохранить диагностику</button>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <h3>Фото неисправности</h3>
+      <div class="photo-grid">
+        {% for photo in photos %}
+          <a href="{{ photo.image.url }}" target="_blank"><img src="{{ photo.image.url }}" alt="Фото {{ request_obj.number }}"></a>
+        {% empty %}
+          <p class="muted">Фото не загружены.</p>
+        {% endfor %}
+      </div>
+      <form method="post" enctype="multipart/form-data" style="margin-top:12px;">
+        {% csrf_token %}<input type="hidden" name="action" value="photo">
+        {% include "_form.html" with form=photo_form %}
+        <button class="btn btn-outline" type="submit">Загрузить фото</button>
+      </form>
+    </div>
+    <div class="card">
+      <h3>Работы и запчасти</h3>
+      {% for job in jobs %}
+        <div class="estimate-row"><span>{{ job.name }} ({{ job.hours }} ч)</span><span>{{ job.price }} ₽</span></div>
+        {% for usage in job.part_usages.all %}
+          <div class="estimate-row"><span class="muted">— {{ usage.part.name }} × {{ usage.quantity }}</span><span>{% widthratio usage.quantity 1 usage.price_at_write_off %} ₽</span></div>
+        {% endfor %}
+      {% empty %}
+        <p class="muted">Работ пока нет.</p>
+      {% endfor %}
+      {% if not is_receptionist or user.employee_profile.role == 'admin' %}
+      <form method="post" class="inline-form" style="margin-top:16px;">
+        {% csrf_token %}<input type="hidden" name="action" value="job">
+        {% for field in job_form %}
+          <div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Добавить работу</button>
+      </form>
+      {% if jobs %}
+      <form method="post" class="inline-form" style="margin-top:16px;">
+        {% csrf_token %}<input type="hidden" name="action" value="part">
+        <div class="field"><label for="job">Работа</label>
+          <select id="job" name="job">{% for job in jobs %}<option value="{{ job.pk }}">{{ job.name }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="part">Запчасть</label>
+          <select id="part" name="part">{% for part in parts %}<option value="{{ part.pk }}">{{ part.name }} (остаток {{ part.stock_quantity }})</option>{% endfor %}</select></div>
+        <div class="field"><label for="quantity">Кол-во</label><input id="quantity" type="number" name="quantity" min="1" value="1"></div>
+        <button class="btn btn-outline" type="submit">Списать</button>
+      </form>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <h3>Действия</h3>
+      <form method="post" class="actions" style="flex-direction:column;">
+        {% csrf_token %}
+        {% if request_obj.status.order_index == 1 %}<button class="btn btn-outline" name="action" value="start" type="submit">Начать диагностику</button>{% endif %}
+        {% if request_obj.status.order_index == 2 %}<button class="btn btn-accent" name="action" value="estimate" type="submit">Отправить смету клиенту</button>{% endif %}
+        {% if request_obj.status.order_index == 4 %}<button class="btn btn-primary" name="action" value="ready" type="submit">Готово к выдаче</button>{% endif %}
+        {% if request_obj.status.order_index == 5 and is_receptionist %}<button class="btn btn-primary" name="action" value="issue" type="submit">Выдать устройство</button>{% endif %}
+      </form>
+      <button class="btn btn-outline btn-sm" type="button" id="refresh-status" data-url="{% url 'status_json' request_obj.pk %}" style="margin-top:12px;">Обновить статус</button>
+      <p class="caption" id="status-text" style="margin-top:8px;">{{ request_obj.status.name }}</p>
+    </div>
+    {% if warranty %}<div class="card"><h3>Гарантия</h3><p>Талон {{ warranty.number }}, {{ warranty.valid_months }} мес.</p></div>{% endif %}
+  </div>
+</div>
+<script>
+document.getElementById('refresh-status').addEventListener('click', function () {
+  fetch(this.dataset.url, {headers: {'Accept': 'application/json'}})
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      document.getElementById('status-text').textContent = data.status;
+      document.getElementById('estimate-total').textContent = data.estimate_total;
+    });
+});
+</script>
+{% endblock %}

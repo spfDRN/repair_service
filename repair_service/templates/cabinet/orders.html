@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Мои заявки — РемТех{% endblock %}
+{% block content %}
+<div class="card-head"><h1>Мои заявки</h1><a class="btn btn-primary" href="{% url 'cabinet_order_new' %}">Новая заявка</a></div>
+{% include "cabinet/_order_rows.html" with orders=orders %}
+{% endblock %}

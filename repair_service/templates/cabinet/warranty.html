@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Гарантии — РемТех{% endblock %}
+{% block content %}
+<h1>Гарантийные талоны</h1>
+{% for card in cards %}
+  <div class="list-item">
+    <div><div class="title">Талон {{ card.number }} · {{ card.request.device.brand }} {{ card.request.device.model }}</div>
+    <div class="meta">Выдан {{ card.issued_at|date:"d.m.Y" }} · срок {{ card.valid_months }} мес.</div></div>
+    <span class="badge badge-done">Заявка {{ card.request.number }}</span>
+  </div>
+{% empty %}
+  <div class="card muted">Гарантийных талонов пока нет.</div>
+{% endfor %}
+{% endblock %}

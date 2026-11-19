@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Показатели — РемТех{% endblock %}
+{% block content %}
+<h1>Сводные показатели</h1>
+<div class="stats section">
+  <div class="stat"><div class="label">Всего заявок</div><div class="value">{{ total }}</div></div>
+  <div class="stat"><div class="label">Выручка (выданные)</div><div class="value">{{ revenue|floatformat:0 }} ₽</div></div>
+  <div class="stat"><div class="label">Средний чек</div><div class="value">{{ average|floatformat:0 }} ₽</div></div>
+  <div class="stat"><div class="label">Гарантийные талоны</div><div class="value">{{ warranty_share }}%</div><div class="caption">{{ warranty_count }} из {{ total }} заявок</div></div>
+</div>
+<div class="card">
+  <h3>Заявки по статусам</h3>
+  {% for row in chart %}
+    <div class="bar-row"><span>{{ row.name }}</span><div class="bar"><span style="width:{{ row.width }}%"></span></div><b>{{ row.count }}</b></div>
+  {% endfor %}
+</div>
+{% endblock %}

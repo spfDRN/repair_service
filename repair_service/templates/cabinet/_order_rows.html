@@ -1,0 +1,11 @@
+{% for order in orders %}
+  <a class="list-item" href="{% url 'cabinet_order' order.pk %}" style="color:inherit; text-decoration:none;">
+    <div>
+      <div class="title">Заявка №{{ order.number }} · {{ order.device.brand }} {{ order.device.model }}</div>
+      <div class="meta">Принята {{ order.created_at|date:"d.m.Y" }}</div>
+    </div>
+    {% include "_badge.html" with s=order.status %}
+  </a>
+{% empty %}
+  <div class="card muted">Заявок пока нет.</div>
+{% endfor %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Статус заявки — РемТех{% endblock %}
+{% block content %}
+<h1>Статус заявки</h1>
+<form method="get" class="form-card">
+  {% include "_form.html" %}
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Найти</button></div>
+</form>
+{% if found %}
+  <div class="card" style="margin-top:20px; max-width:640px;">
+    <div class="card-head"><h3>Заявка {{ found.number }}</h3>{% include "_badge.html" with s=found.status %}</div>
+    <a href="{% url 'track_detail' found.number %}">Открыть страницу заявки</a>
+  </div>
+{% endif %}
+{% endblock %}

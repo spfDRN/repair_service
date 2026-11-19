@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Профиль — РемТех{% endblock %}
+{% block content %}
+<h1>Профиль</h1>
+<form method="post" class="form-card">
+  {% csrf_token %}
+  {% include "_form.html" %}
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Сохранить</button>
+  <a class="btn btn-outline" href="{% url 'cabinet_password' %}">Сменить пароль</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Заявки — РемТех{% endblock %}
+{% block content %}
+<div class="card-head"><h1>Заявки</h1>
+  {% if user.employee_profile.role != 'master' %}<a class="btn btn-outline" href="{% url 'staff_export' %}">Экспорт CSV</a>{% endif %}
+</div>
+<div class="filters">
+  <form method="get">
+    <div class="field"><label for="q">Поиск</label><input id="q" name="q" value="{{ query }}" placeholder="Номер, клиент, устройство"></div>
+    <div class="field"><label for="status">Статус</label>
+      <select id="status" name="status"><option value="">Все</option>
+      {% for item in statuses %}<option value="{{ item.pk }}"{% if selected_status == item.pk|stringformat:"s" %} selected{% endif %}>{{ item.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="device_type">Тип</label>
+      <select id="device_type" name="device_type"><option value="">Все</option>
+      {% for value, label in device_types %}<option value="{{ value }}"{% if selected_device_type == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="master">Мастер</label>
+      <select id="master" name="master"><option value="">Все</option>
+      {% for item in masters %}<option value="{{ item.pk }}"{% if selected_master == item.pk|stringformat:"s" %} selected{% endif %}>{{ item.user.get_full_name }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="sort">Сортировка</label>
+      <select id="sort" name="sort">
+        <option value="-created_at"{% if sort == '-created_at' %} selected{% endif %}>Сначала новые</option>
+        <option value="created_at"{% if sort == 'created_at' %} selected{% endif %}>Сначала старые</option>
+        <option value="number"{% if sort == 'number' %} selected{% endif %}>По номеру</option>
+        <option value="-estimate_total"{% if sort == '-estimate_total' %} selected{% endif %}>Смета ↓</option>
+        <option value="estimate_total"{% if sort == 'estimate_total' %} selected{% endif %}>Смета ↑</option>
+      </select></div>
+    <button class="btn btn-primary" type="submit">Применить</button>
+  </form>
+</div>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Номер</th><th>Клиент</th><th>Устройство</th><th>Статус</th><th>Мастер</th><th>Смета</th><th>Дата</th></tr></thead>
+  <tbody>
+  {% for order in page_obj %}
+    <tr>
+      <td><a href="{% url 'staff_order' order.pk %}">{{ order.number }}</a></td>
+      <td>{{ order.device.client.full_name }}</td>
+      <td>{{ order.device.brand }} {{ order.device.model }}</td>
+      <td>{% include "_badge.html" with s=order.status %}</td>
+      <td>{% if order.master %}{{ order.master.user.get_full_name }}{% else %}—{% endif %}</td>
+      <td>{{ order.estimate_total|default:"—" }}</td>
+      <td>{{ order.created_at|date:"d.m.Y" }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="muted">Ничего не найдено.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="pagination">
+  {% if page_obj.has_previous %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>{% endif %}
+  <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?{% if querystring %}{{ querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

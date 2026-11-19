@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Устройства — РемТех{% endblock %}
+{% block content %}
+<h1>История устройств</h1>
+{% for device in devices %}
+  <div class="list-item">
+    <div><div class="title">{{ device.brand }} {{ device.model }}</div>
+    <div class="meta">{{ device.get_device_type_display }}{% if device.serial_number %} · S/N {{ device.serial_number }}{% endif %} · заявок: {{ device.requests.count }}</div></div>
+  </div>
+{% empty %}
+  <div class="card muted">Устройств пока нет.</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Заявка {{ request_obj.number }} — РемТех{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'track' %}">Статус заявки</a> / {{ request_obj.number }}</div>
+<div class="card" style="max-width:640px;">
+  <div class="card-head"><h2>Заявка {{ request_obj.number }}</h2>{% include "_badge.html" with s=request_obj.status %}</div>
+  <dl class="kv">
+    <dt>Устройство</dt><dd>{{ request_obj.device.get_device_type_display }} {{ request_obj.device.brand }} {{ request_obj.device.model }}</dd>
+    <dt>Принята</dt><dd>{{ request_obj.created_at|date:"d.m.Y" }}</dd>
+    <dt>Мастер</dt><dd>{% if request_obj.master %}{{ request_obj.master.user.get_full_name }}{% else %}ещё не назначен{% endif %}</dd>
+  </dl>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load static %}<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}РемТех — сервис ремонта техники{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="{% url 'home' %}">Рем<span>Тех</span></a>
+    <button class="btn btn-outline btn-sm nav-toggle" type="button" onclick="document.getElementById('main-nav').classList.toggle('open')">Меню</button>
+    <nav class="nav-links" id="main-nav">
+      {% if user.is_authenticated %}
+        {% if user.employee_profile %}
+          <a href="{% url 'staff_orders' %}">Заявки</a>
+          {% if user.employee_profile.role == 'admin' %}<a href="{% url 'staff_dashboard' %}">Показатели</a>{% endif %}
+          <a href="{% url 'admin:index' %}">Админка</a>
+        {% else %}
+          <a href="{% url 'cabinet' %}">Личный кабинет</a>
+          <a href="{% url 'cabinet_orders' %}">Мои заявки</a>
+          <a href="{% url 'cabinet_devices' %}">Устройства</a>
+          <a href="{% url 'cabinet_warranty' %}">Гарантии</a>
+          <a href="{% url 'cabinet_profile' %}">Профиль</a>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'services' %}">Услуги</a>
+        <a href="{% url 'about' %}">О сервисе</a>
+        <a href="{% url 'contacts' %}">Контакты</a>
+        <a href="{% url 'track' %}">Статус заявки</a>
+      {% endif %}
+    </nav>
+    <div class="header-actions">
+      {% if user.is_authenticated %}
+        <span class="caption">{{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-outline btn-sm" type="submit">Выйти</button></form>
+      {% else %}
+        <a class="btn btn-outline btn-sm" href="{% url 'login' %}">Войти</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Оставить заявку</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<main class="page">
+  <div class="container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-warn{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>© 2026 РемТех — сервис ремонта техники</div>
+    <div>Саратов, ул. Московская, 15 · +7 (8452) 00-00-00 · Пн–Сб 9:00–20:00</div>
+  </div>
+</footer>
+</body>
+</html>

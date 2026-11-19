@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Новая заявка — РемТех{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'cabinet_orders' %}">Мои заявки</a> / Новая заявка</div>
+<h1>Новая заявка на ремонт</h1>
+<form method="post" class="form-card" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% include "_form.html" %}
+  <div class="form-actions"><button class="btn btn-accent" type="submit">Отправить заявку</button>
+  <a class="btn btn-outline" href="{% url 'cabinet_orders' %}">Отмена</a></div>
+</form>
+{% endblock %}
